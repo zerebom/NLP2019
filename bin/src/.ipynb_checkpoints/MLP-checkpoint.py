@@ -9,8 +9,10 @@ import pandas as pd
 
 class Extend_MeCab():
     def __init__(self):
+#         self.mc = MeCab.Tagger(
+#             r'-d C:\Users\icech\mecab-ipadic-neologd\build\mecab-ipadic-2.7.0-20070801-neologd-20180625')
         self.mc = MeCab.Tagger(
-            r'-d C:\Users\icech\mecab-ipadic-neologd\build\mecab-ipadic-2.7.0-20070801-neologd-20180625')
+            r'-d C:\Users\k-higuchi\mecab-ipadic-neologd\build\mecab-ipadic-2.7.0-20070801-neologd-20181112')
 
     def make_lines(self, txt, Flg_matubi=False):
         txt=re.sub('\（.+\）','',txt)
@@ -18,6 +20,7 @@ class Extend_MeCab():
         txt=re.sub('\n','',txt)
         txt=re.sub('\\u3000','',txt)
         txt=txt.split('。')
+        
         for sentence in txt:
             if Flg_matubi == True:
                 sentence = re.sub('.+、', '', sentence)
@@ -40,6 +43,7 @@ class Extend_MeCab():
 
     def count_morpheme(self, txt, word_class='動詞'):
         txt_word_list = []
+        
         for morphemes in self.make_lines(txt, Flg_matubi=False):
             for morpheme in morphemes:
                 if len(morpheme['base']) == 1:
@@ -47,20 +51,21 @@ class Extend_MeCab():
 
                 if morpheme['pos'] == word_class:
                     txt_word_list.append(morpheme['base'])
+        
         # 二重リストで返す
         return([txt_word_list])
 
     def count_matubi(self, txt, max_matubi_len=4):
         matubi_list = []
+        
         for morphemes in self.make_lines(txt, Flg_matubi=True):
-            sentence = [d.get('surface') for d in morphemes]
-
+            
             word = ""
-            max_matubi_len = min([len(sentence), max_matubi_len])
+            sentence = [d.get('surface') for d in morphemes]
+            matubi_len = min([len(sentence), max_matubi_len])
 
-            for i in reversed(range(1, max_matubi_len+1)):
+            for i in reversed(range(1, matubi_len+1)):
                 word += sentence[-i]
-
             matubi_list.append(word)
 
         return([matubi_list])
@@ -70,6 +75,9 @@ class Preprocessing_txt():
     def __init__(self):
         self.corpus_dic = corpora.Dictionary()
         self.corpus_list = []
+    
+    def return_dic(self):
+        return (self.corpus_dic)
 
     def subscribe_dic(self):
         print(f'全単語数={len(self.corpus_dic)}')
